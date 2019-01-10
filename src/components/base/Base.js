@@ -8,6 +8,7 @@ import Formio from '../../Formio';
 import Validator from '../Validator';
 import Widgets from '../../widgets';
 import Component from '../../Component';
+
 const CKEDITOR = 'https://cdn.staticaly.com/gh/formio/ckeditor5-build-classic/master/build/ckeditor.js';
 
 /**
@@ -164,8 +165,11 @@ export default class BaseComponent extends Component {
    * @param value
    * @param options
    */
+
   /* eslint-disable no-unused-vars */
-  static tableView(value, options) {}
+  static tableView(value, options) {
+  }
+
   /* eslint-enable no-unused-vars */
 
   /**
@@ -175,6 +179,7 @@ export default class BaseComponent extends Component {
    * @param {Object} options - The options for this component.
    * @param {Object} data - The global data submission object this component will belong.
    */
+
   /* eslint-disable max-statements */
   constructor(component, options, data) {
     super(options, (component && component.id) ? component.id : null);
@@ -361,6 +366,7 @@ export default class BaseComponent extends Component {
     // Allow anyone to hook into the component creation.
     this.hook('component');
   }
+
   /* eslint-enable max-statements */
 
   get hasInput() {
@@ -975,7 +981,7 @@ export default class BaseComponent extends Component {
    * @return {*}
    */
   errorMessage(type) {
-    return (this.component.errors && this.component.errors[type]) ? this.component.errors[type] :  type;
+    return (this.component.errors && this.component.errors[type]) ? this.component.errors[type] : type;
   }
 
   /**
@@ -1911,7 +1917,7 @@ export default class BaseComponent extends Component {
 
         this.quill.on('text-change', () => {
           txtArea.value = this.quill.root.innerHTML;
-          onChange(txtArea);
+          onChange(this.quill.root.innerHTML);
         });
 
         return this.quill;
@@ -2275,6 +2281,7 @@ export default class BaseComponent extends Component {
     console.warn('component.getRawValue() has been deprecated. Use component.validationValue or component.dataValue instead.');
     return this.validationValue;
   }
+
   /* eslint-enable max-len */
 
   get validationValue() {

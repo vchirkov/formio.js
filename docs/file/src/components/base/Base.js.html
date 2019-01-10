@@ -199,6 +199,7 @@ import Formio from &apos;../../Formio&apos;;
 import Validator from &apos;../Validator&apos;;
 import Widgets from &apos;../../widgets&apos;;
 import Component from &apos;../../Component&apos;;
+
 const CKEDITOR = &apos;https://cdn.staticaly.com/gh/formio/ckeditor5-build-classic/master/build/ckeditor.js&apos;;
 
 /**
@@ -355,8 +356,11 @@ export default class BaseComponent extends Component {
    * @param value
    * @param options
    */
+
   /* eslint-disable no-unused-vars */
-  static tableView(value, options) {}
+  static tableView(value, options) {
+  }
+
   /* eslint-enable no-unused-vars */
 
   /**
@@ -366,6 +370,7 @@ export default class BaseComponent extends Component {
    * @param {Object} options - The options for this component.
    * @param {Object} data - The global data submission object this component will belong.
    */
+
   /* eslint-disable max-statements */
   constructor(component, options, data) {
     super(options, (component &amp;&amp; component.id) ? component.id : null);
@@ -552,6 +557,7 @@ export default class BaseComponent extends Component {
     // Allow anyone to hook into the component creation.
     this.hook(&apos;component&apos;);
   }
+
   /* eslint-enable max-statements */
 
   get hasInput() {
@@ -1166,7 +1172,7 @@ export default class BaseComponent extends Component {
    * @return {*}
    */
   errorMessage(type) {
-    return (this.component.errors &amp;&amp; this.component.errors[type]) ? this.component.errors[type] :  type;
+    return (this.component.errors &amp;&amp; this.component.errors[type]) ? this.component.errors[type] : type;
   }
 
   /**
@@ -2102,7 +2108,7 @@ export default class BaseComponent extends Component {
 
         this.quill.on(&apos;text-change&apos;, () =&gt; {
           txtArea.value = this.quill.root.innerHTML;
-          onChange(txtArea);
+          onChange(this.quill.root.innerHTML);
         });
 
         return this.quill;
@@ -2466,6 +2472,7 @@ export default class BaseComponent extends Component {
     console.warn(&apos;component.getRawValue() has been deprecated. Use component.validationValue or component.dataValue instead.&apos;);
     return this.validationValue;
   }
+
   /* eslint-enable max-len */
 
   get validationValue() {

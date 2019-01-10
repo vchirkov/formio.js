@@ -1,6 +1,11 @@
+import _ from 'lodash';
 import BaseComponent from '../base/Base';
 
 export default class ContentComponent extends BaseComponent {
+  static get BUILDER_EDITOR_DEBOUNCE() {
+    return 350;
+  }
+
   static schema(...extend) {
     return BaseComponent.schema({
       label: 'Content',
@@ -26,6 +31,28 @@ export default class ContentComponent extends BaseComponent {
     return ContentComponent.schema();
   }
 
+  get wysiwygDefault() {
+    return {
+      theme: 'snow',
+      placeholder: this.t(this.component.placeholder),
+      modules: {
+        clipboard: {
+          matchVisual: false
+        },
+        toolbar: [
+          [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+          [{ 'font': [] }],
+          ['bold', 'italic', 'underline', 'strike', { 'script': 'sub' }, { 'script': 'super' }, 'clean'],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }, { 'align': [] }],
+          ['blockquote', 'code-block'],
+          ['link', 'image']
+        ]
+      }
+    };
+  }
+
   setHTML() {
     this.htmlElement.innerHTML = this.interpolate(this.component.html);
   }
@@ -42,11 +69,14 @@ export default class ContentComponent extends BaseComponent {
     if (this.options.builder) {
       const editorElement = this.ce('div');
       this.element.appendChild(editorElement);
-      this.editorReady = this.addCKE(editorElement, null, (html) => {
+      this.editorReady = this.addQuill(editorElement, null, (html) => {
         this.component.html = html;
       }).then((editor) => {
         this.editor = editor;
-        this.editor.data.set(this.component.html);
+        this.editor.on('text-change', _.debounce(() => {
+          this.root.emit('change', this.root.form);// update formbuilder of changed content
+        }, ContentComponent.BUILDER_EDITOR_DEBOUNCE));
+        this.editor.clipboard.dangerouslyPasteHTML(this.component.html);
         return editor;
       }).catch(err => console.warn(err));
     }
@@ -66,10 +96,6 @@ export default class ContentComponent extends BaseComponent {
   }
 
   destroy() {
-    const state = super.destroy();
-    if (this.editor) {
-      this.editor.destroy();
-    }
-    return state;
+    return super.destroy();
   }
 }

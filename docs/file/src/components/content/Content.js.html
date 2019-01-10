@@ -189,9 +189,14 @@
 </nav>
 
 <div class="content" data-ice="content"><h1 data-ice="title">src/components/content/Content.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import BaseComponent from &apos;../base/Base&apos;;
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import _ from &apos;lodash&apos;;
+import BaseComponent from &apos;../base/Base&apos;;
 
 export default class ContentComponent extends BaseComponent {
+  static get BUILDER_EDITOR_DEBOUNCE() {
+    return 350;
+  }
+
   static schema(...extend) {
     return BaseComponent.schema({
       label: &apos;Content&apos;,
@@ -217,6 +222,28 @@ export default class ContentComponent extends BaseComponent {
     return ContentComponent.schema();
   }
 
+  get wysiwygDefault() {
+    return {
+      theme: &apos;snow&apos;,
+      placeholder: this.t(this.component.placeholder),
+      modules: {
+        clipboard: {
+          matchVisual: false
+        },
+        toolbar: [
+          [{ &apos;size&apos;: [&apos;small&apos;, false, &apos;large&apos;, &apos;huge&apos;] }],  // custom dropdown
+          [{ &apos;header&apos;: [1, 2, 3, 4, 5, 6, false] }],
+          [{ &apos;font&apos;: [] }],
+          [&apos;bold&apos;, &apos;italic&apos;, &apos;underline&apos;, &apos;strike&apos;, { &apos;script&apos;: &apos;sub&apos; }, { &apos;script&apos;: &apos;super&apos; }, &apos;clean&apos;],
+          [{ &apos;color&apos;: [] }, { &apos;background&apos;: [] }],
+          [{ &apos;list&apos;: &apos;ordered&apos; }, { &apos;list&apos;: &apos;bullet&apos; }, { &apos;indent&apos;: &apos;-1&apos; }, { &apos;indent&apos;: &apos;+1&apos; }, { &apos;align&apos;: [] }],
+          [&apos;blockquote&apos;, &apos;code-block&apos;],
+          [&apos;link&apos;, &apos;image&apos;]
+        ]
+      }
+    };
+  }
+
   setHTML() {
     this.htmlElement.innerHTML = this.interpolate(this.component.html);
   }
@@ -233,11 +260,14 @@ export default class ContentComponent extends BaseComponent {
     if (this.options.builder) {
       const editorElement = this.ce(&apos;div&apos;);
       this.element.appendChild(editorElement);
-      this.editorReady = this.addCKE(editorElement, null, (html) =&gt; {
+      this.editorReady = this.addQuill(editorElement, null, (html) =&gt; {
         this.component.html = html;
       }).then((editor) =&gt; {
         this.editor = editor;
-        this.editor.data.set(this.component.html);
+        this.editor.on(&apos;text-change&apos;, _.debounce(() =&gt; {
+          this.root.emit(&apos;change&apos;, this.root.form);// update formbuilder of changed content
+        }, ContentComponent.BUILDER_EDITOR_DEBOUNCE));
+        this.editor.clipboard.dangerouslyPasteHTML(this.component.html);
         return editor;
       }).catch(err =&gt; console.warn(err));
     }
@@ -257,11 +287,7 @@ export default class ContentComponent extends BaseComponent {
   }
 
   destroy() {
-    const state = super.destroy();
-    if (this.editor) {
-      this.editor.destroy();
-    }
-    return state;
+    return super.destroy();
   }
 }
 </code></pre>
